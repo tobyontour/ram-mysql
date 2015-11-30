@@ -2,7 +2,7 @@ RAMDISK_LOCATION=/mnt/ramdisk
 RAMDISK_SIZE=512M
 FDISK_LINE="tmpfs       ${RAMDISK_LOCATION} tmpfs   nodev,nosuid,noexec,nodiratime,size=${RAMDISK_SIZE}   0 0"
 
-build:
+build: ${RAMDISK_LOCATION}
 	docker build -t mysqlram .
 
 start:
@@ -20,8 +20,8 @@ connect:
 ssh:
 	docker exec -i -t ram-mysql bash
 
-init:
-	@grep "${RAMDISK_LOCATION}" /etc/fstab || (echo "Add this line to /etc/fstab" && echo ${FDISK_LINE})
+${RAMDISK_LOCATION}:
+	@grep "${RAMDISK_LOCATION}" /etc/fstab || (echo "Add this line to /etc/fstab and `sudo mkdir ${RAMDISK_LOCATION}` and `sudo chmod a+rwx ${RAMDISK_LOCATION}`" && echo ${FDISK_LINE} && false)
 	sudo mount ${RAMDISK_LOCATION}
 
 clean:
